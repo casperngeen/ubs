@@ -10,3 +10,4 @@ import routes.bugfixer_p2
 import routes.thetourist
 import routes.digital_colony
 import routes.dodge_bullet
+import routes.kazuma
