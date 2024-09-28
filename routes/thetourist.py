@@ -282,7 +282,9 @@ def tourist():
     currMaxReward = -1
 
     while queue:
-        currNode, currPath, currCost, currReward, visitedNodes = queue.popleft()
+        value = queue.popleft()
+        print(value)
+        currNode, currPath, currCost, currReward, visitedNodes = value
         if currCost > time_limit:
             continue
         if currNode.value == starting_point:
@@ -299,53 +301,3 @@ def tourist():
                               visitedNodes.union({nextNode.value})))
 
     return json.dumps({'path': currBestPath, 'satisfaction': currMaxReward})
-
-#@app.route('/tourist', methods=['POST'])
-def evaluate_tourist():
-    input_data = request.get_json()
-
-    locations = input_data["locations"]
-    starting_point = input_data["startingPoint"]
-    time_limit = input_data["timeLimit"]
-    
-    memo = {}
-
-    # Helper function with memoization
-    def find_optimal_path(current_station, remaining_time, path, total_satisfaction):
-        # Base case: if we run out of time, return satisfaction so far
-        if remaining_time < 0:
-            return -1, path  # Exceeded time
-        if current_station == starting_point and len(path) > 1:
-            return total_satisfaction, path  # Return satisfaction if back at start
-
-        # Memoization: avoid recalculating for the same state
-        state = (current_station, remaining_time, tuple(path))
-        if state in memo:
-            return memo[state]
-
-        max_satisfaction = total_satisfaction
-        best_path = path[:]
-
-        # Try visiting each station that hasn't been visited yet
-        for station, (satisfaction, time_needed) in locations.items():
-            if station not in path:
-                # Only proceed if we can still visit this station within the time limit
-                new_time = remaining_time - time_needed
-                if new_time >= 0:
-                    new_satisfaction, new_path = find_optimal_path(
-                        station, new_time, path + [station], total_satisfaction + satisfaction
-                    )
-                    # Update if we find a better satisfaction path
-                    if new_satisfaction > max_satisfaction:
-                        max_satisfaction = new_satisfaction
-                        best_path = new_path
-
-        # Memoize the result, store both satisfaction and path
-        memo[state] = (max_satisfaction, best_path)
-        return max_satisfaction, best_path
-
-    # Start the recursive search from the starting point
-    total_satisfaction, best_path = find_optimal_path(starting_point, time_limit, [starting_point], 0)
-
-    # Output the best path and total satisfaction
-    return {'path': best_path, 'satisfaction': total_satisfaction}
