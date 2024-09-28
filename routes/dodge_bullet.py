@@ -7,7 +7,7 @@ from routes import app
 logger = logging.getLogger(__name__)
 
 @app.route('/dodge', methods=['POST'])
-def evaluate_digital_colony():
+def evaluate_dodge():
     data = request.get_json()
     logging.info("data sent for evaluation {}".format(data))
 
