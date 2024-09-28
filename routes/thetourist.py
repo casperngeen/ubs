@@ -5,6 +5,7 @@ import json
 import logging
 from flask import request
 from routes import app
+from typing import Dict, List, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -130,6 +131,9 @@ TEST_INPUT = {
     "timeLimit": 480
 }
 
+TEST_INPUT_2 = {'locations': {'Tokyo': [0, 0], 'Kiyosumi-shirakawa': [38, 35], 'Narimasu': [12, 25], 'Uchisaiwaicho': [42, 35], 'Kotake-mukaihara': [21, 35], 'Shinonome': [15, 25], 'Ariake': [43, 30], 'Jimbocho': [35, 20], 'Oshiage': [26, 15], 'Nakanobu': [40, 15], 'Chikatetsu-akatsuka': [40, 20], 'Itabashi-kuyakushomae': [35, 15], 'Baraki-nakayama': [27, 35], 'Motohasunuma': [42, 20], 'Minami-gyotoku': [39, 30], 'Nishi-kasai': [28, 15], 'Ueno-okachimachi': [17, 20], 'Shirokanedai': [10, 25], 'Hikarigaoka': [30, 15], 'Akasaka-mitsuke': [44, 20], 'Mita': [13, 30], 'Meiji-jingumae': [39, 15], 'Roppongi': [31, 35], 'Urayasu': [44, 30], 'Monzen-nakacho': [35, 20], 'Kudanshita': [26, 25], 'Yotsuya': [28, 15], 'Gaiemmae': [45, 20], 'Nogizaka': [12, 35], 'Kasai': [20, 15], 'Akihabara': [42, 20], 'Waseda': [38, 25], 'Nakano-fujimicho': [23, 35], 'Kiba': [25, 15], 'Heiwadai': [17, 35], 'Asakusabashi': [15, 30], 'Hatchobori': [45, 20], 'Kyobashi': [10, 25], 'Shiba-koen': [38, 25], 'Shin-ochanomizu': [
+    22, 30], 'Nishi-shinjuku-gochome': [20, 35], 'Higashi-nakano': [14, 35], 'Akebonobashi': [15, 25], 'Oji': [22, 35], 'Nijubashimae': [11, 20], 'Yurakucho': [39, 15], 'Shimbashi': [34, 30], 'Azabu-juban': [32, 35], 'Kanda': [43, 35], 'Shinjuku-nishiguchi': [17, 30], 'Togoshi': [36, 15], 'Shimo-akatsuka': [27, 25], 'Kokkai-gijidomae': [43, 25], 'Nishi-ojima': [34, 30], 'Ichinoe': [11, 30], 'Toyosu': [19, 25], 'Nakai': [36, 15], 'Awajicho': [44, 30], 'Ryogoku': [14, 35], 'Sendagi': [21, 35], 'Tsukiji': [28, 25], 'Hongosanchome': [37, 35], 'Akasaka': [14, 15], 'Toshimaen': [26, 35], 'Minami-senju': [24, 20], 'Hakusan': [27, 35], 'Nerima': [35, 25], 'Shiodome': [41, 15], 'Shimura-sanchome': [30, 30], 'Ochiai': [14, 20], 'Onarimon': [30, 30], 'Nakano-sakaue': [28, 15], 'Tochomae': [36, 20], 'Wakoshi': [34, 35], 'Tameike-sanno': [21, 25], 'Nishi-nippori': [19, 15], 'Kasuga': [40, 30], 'Magome': [21, 25], 'Nishigahara': [28, 15], 'Asakusa': [29, 35], 'Higashi-ginza': [16, 25]}, 'startingPoint': 'Tokyo', 'timeLimit': 480}
+
 
 class Node:
     def __init__(self, value):
@@ -140,7 +144,6 @@ class Node:
         # Avoid adding duplicate edges with the same weight
         if not any(edge[0].value == node.value and edge[1] == weight for edge in self.edges):
             self.edges.append((node, weight))  # Store edge with weight
-
     def __repr__(self):
         return f'Node({self.value})'
 
@@ -148,6 +151,12 @@ class Node:
 class Graph:
     def __init__(self):
         self.nodes = {}
+
+    def get_node(self, value):
+        return self.nodes[value]
+
+    def get_node(self, value):
+        return self.nodes[value]
 
     def add_node(self, value):
         if value not in self.nodes:
@@ -163,7 +172,7 @@ class Graph:
             # Add edge from to_value to from_value (making it bidirectional)
             self.nodes[to_value].add_edge(self.nodes[from_value], weight)
         else:
-            print(f'One or both nodes not found: {from_value}, {to_value}')
+           print(f'One or both nodes not found: {from_value}, {to_value}')
 
     def display(self):
         for node in self.nodes.values():
@@ -171,44 +180,23 @@ class Graph:
                      for edge in node.edges]  # Extract node value and weight
             print(f'{node.value} -> {edges}')
 
-    def shortest_path(self, start_value, end_value):
-        if start_value not in self.nodes or end_value not in self.nodes:
-            return f'One or both nodes not found: {start_value}, {end_value}'
-
+    def dijkstra(self, start, subgraph):
         # Priority queue for Dijkstra's algorithm
         priority_queue = []
-        heapq.heappush(priority_queue, (0, start_value))  # (distance, node)
+        heapq.heappush(priority_queue, (0, start))  # (weight, start)
+        visited = set()
         distances = {node: float('inf')
                      for node in self.nodes}  # Initialize distances
-        distances[start_value] = 0
-        # To reconstruct the path
-        previous_nodes = {node: None for node in self.nodes}
+        visited.add(start)
+        distances[start] = 0
 
         while priority_queue:
-            current_distance, current_node_value = heapq.heappop(
-                priority_queue)
+            current_distance, current_node_value = heapq.heappop(priority_queue)
+            if current_node_value in subgraph.nodes:
+                visited.add(current_node_value)
+                if len(visited) == len(subgraph.nodes):
+                    break
             current_node = self.nodes[current_node_value]
-
-            # If we reached the end node, construct the path
-            if current_node_value == end_value:
-                path = []
-                while current_node_value is not None:
-                    path.append(current_node_value)
-                    current_node_value = previous_nodes[current_node_value]
-                path = path[::-1]  # Reverse the path
-
-                # Compute the total distance
-                total_distance = 0
-                for i in range(len(path) - 1):
-                    from_node = self.nodes[path[i]]
-                    to_node = self.nodes[path[i + 1]]
-                    # Find the edge weight from from_node to to_node
-                    for neighbor, weight in from_node.edges:
-                        if neighbor.value == to_node.value:
-                            total_distance += weight
-                            break
-                return (path, total_distance)  # Return both path and distance
-
             # Explore neighbors
             for neighbor, weight in current_node.edges:
                 distance = current_distance + weight
@@ -216,10 +204,11 @@ class Graph:
                 # Only consider this new path if it's better
                 if distance < distances[neighbor.value]:
                     distances[neighbor.value] = distance
-                    previous_nodes[neighbor.value] = current_node_value
                     heapq.heappush(priority_queue, (distance, neighbor.value))
-
-        return f'No path found from {start_value} to {end_value}'
+        for node in list(distances.keys()):
+            if node not in subgraph.nodes:
+                distances.pop(node)
+        return distances
 
     def create_complete_subgraph(self, node_values):
         """
@@ -238,20 +227,16 @@ class Graph:
         subgraph = Graph()
         for value in node_values:
             subgraph.add_node(value)
+        print(f"{subgraph.nodes}")
 
         # Generate all unique pairs of nodes
-        for node1, node2 in combinations(node_values, 2):
-            result = self.shortest_path(node1, node2)
-
-            if isinstance(result, tuple):
-                path, distance = result
-                # Add edge with the shortest distance
-                subgraph.add_edge(node1, node2, distance)
-            else:
-                print(f'No path between {node1} and {node2}, skipping.')
-
+        for node in node_values:
+            result = self.dijkstra(node, subgraph)
+            # Add edge with the shortest distance
+            for neighbour in result:
+                if (neighbour, result[neighbour]) not in subgraph.get_node(node).edges:
+                    subgraph.add_edge(node, neighbour, result[neighbour])
         return subgraph
-
 
 def construct_graph(lines, line_travel_time):
     graph = Graph()
@@ -275,7 +260,7 @@ def construct_graph(lines, line_travel_time):
     return graph
 
 
-#@app.route('/tourist', methods=['POST'])
+@app.route('/tourist', methods=['POST'])
 def tourist():
     input = request.get_json()
     logging.info("data sent for evaluation {}".format(input))
@@ -313,51 +298,54 @@ def tourist():
                               currReward + location[nextNode.value][0],
                               visitedNodes.union({nextNode.value})))
 
-    return_dict = {'path': currBestPath, 'satisfaction': currMaxReward}
-    logging.info("My result :{}".format(return_dict))
-    return json.dumps(return_dict)
+    return currBestPath, currMaxReward
 
-@app.route('/tourist', methods=['POST'])
+#@app.route('/tourist', methods=['POST'])
 def evaluate_tourist():
-    data = request.json
-    
-    locations = data["locations"]
-    starting_point = data["startingPoint"]
-    time_limit = data["timeLimit"]
+    input_data = request.get_json()
 
-    def find_optimal_path(start, remaining_time, path, satisfaction):
-        # If time runs out, return the satisfaction of the current path
+    locations = input_data["locations"]
+    starting_point = input_data["startingPoint"]
+    time_limit = input_data["timeLimit"]
+    
+    memo = {}
+
+    # Helper function with memoization
+    def find_optimal_path(current_station, remaining_time, path, total_satisfaction):
+        # Base case: if we run out of time, return satisfaction so far
         if remaining_time < 0:
-            return satisfaction, path
+            return -1, path  # Exceeded time
+        if current_station == starting_point and len(path) > 1:
+            return total_satisfaction, path  # Return satisfaction if back at start
 
-        # We must always end at the starting point
-        if len(path) > 1 and path[-1] == starting_point:
-            return satisfaction, path
-        
-        # Explore all stations
-        max_satisfaction = satisfaction
-        best_path = path
-        
-        for station, (sat_value, min_time) in locations.items():
-            if station not in path:  # Do not revisit a station
-                new_satisfaction, new_path = find_optimal_path(
-                    station,
-                    remaining_time - min_time,  # Subtract visit time
-                    path + [station],
-                    satisfaction + sat_value
-                )
-                # Track the best path found
-                if new_satisfaction > max_satisfaction:
-                    max_satisfaction = new_satisfaction
-                    best_path = new_path
-        
+        # Memoization: avoid recalculating for the same state
+        state = (current_station, remaining_time, tuple(path))
+        if state in memo:
+            return memo[state]
+
+        max_satisfaction = total_satisfaction
+        best_path = path[:]
+
+        # Try visiting each station that hasn't been visited yet
+        for station, (satisfaction, time_needed) in locations.items():
+            if station not in path:
+                # Only proceed if we can still visit this station within the time limit
+                new_time = remaining_time - time_needed
+                if new_time >= 0:
+                    new_satisfaction, new_path = find_optimal_path(
+                        station, new_time, path + [station], total_satisfaction + satisfaction
+                    )
+                    # Update if we find a better satisfaction path
+                    if new_satisfaction > max_satisfaction:
+                        max_satisfaction = new_satisfaction
+                        best_path = new_path
+
+        # Memoize the result, store both satisfaction and path
+        memo[state] = (max_satisfaction, best_path)
         return max_satisfaction, best_path
-    
-    # Start the recursive process from the starting point
-    total_satisfaction, optimal_path = find_optimal_path(starting_point, time_limit, [starting_point], 0)
 
-    # Return the result
-    return json.dumps({
-        'path': optimal_path + [starting_point],  # Ensure round trip
-        'satisfaction': total_satisfaction
-    })
+    # Start the recursive search from the starting point
+    total_satisfaction, best_path = find_optimal_path(starting_point, time_limit, [starting_point], 0)
+
+    # Output the best path and total satisfaction
+    return {'path': best_path, 'satisfaction': total_satisfaction}
