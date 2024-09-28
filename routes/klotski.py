@@ -44,22 +44,25 @@ def evaluate_klotski():
                     if board_matrix[k][l] == block:
                         logging.info("Row: {}, Col: {}".format(k, l))
                         found = True
-                        if direction == 'N':
-                            for a in range(size[block][1]):
+                        block_height, block_width = size[block]
+                        
+                        # Handle movement based on direction
+                        if direction == 'N' and k > 0:
+                            for a in range(block_width):
                                 board_matrix[k-1][l+a] = block
-                                board_matrix[k+size[block][0]-1][l+a] = '@'
-                        elif direction == 'E':
-                            for a in range(size[block][0]):
-                                board_matrix[k+a][l+size[block][1]] = block
+                                board_matrix[k+block_height-1][l+a] = '@'
+                        elif direction == 'E' and l + block_width < 4:
+                            for a in range(block_height):
+                                board_matrix[k+a][l+block_width] = block
                                 board_matrix[k+a][l] = '@'
-                        elif direction == 'S':
-                            for a in range(size[block][1]):
-                                board_matrix[k+size[block][0]][l+a] = block
+                        elif direction == 'S' and k + block_height < 5:
+                            for a in range(block_width):
+                                board_matrix[k+block_height][l+a] = block
                                 board_matrix[k][l+a] = '@'
-                        elif direction == 'W':
-                            for a in range(size[block][0]):
+                        elif direction == 'W' and l > 0:
+                            for a in range(block_height):
                                 board_matrix[k+a][l-1] = block
-                                board_matrix[k+a][l+size[block][0]-1] = '@'
+                                board_matrix[k+a][l+block_width-1] = '@'
                         break
                 if found:
                     break
