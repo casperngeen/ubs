@@ -116,7 +116,7 @@ def evaluate_ast(ast, variables, logs):
             str1 = evaluate_ast(ast[1], variables, logs)
             start = evaluate_ast(ast[2], variables, logs)
             stop = evaluate_ast(ast[3], variables, logs)
-            if not isinstance(str1, str) or not isinstance(str2, int) or not isinstance(str3, int):
+            if not isinstance(str1, str) or not isinstance(start, int) or not isinstance(stop, int):
                 raise Exception()
             if 0 > start or start >= len(str1) or 0 > stop or stop >= len(str1) or stop < start:
                 raise Exception()
@@ -124,7 +124,7 @@ def evaluate_ast(ast, variables, logs):
         elif func == 'add':
             evaluated_args = [evaluate_ast(arg, variables, logs) for arg in ast[1:]]
             if all(isinstance(arg, (int, float)) for arg in evaluated_args):
-                return round(reduce(operator.add, evaluated_args, 1), 4)
+                return round(reduce(operator.add, evaluated_args), 4)
             else:
                 raise Exception()
         elif func == 'subtract':
@@ -195,7 +195,7 @@ def evaluate_ast(ast, variables, logs):
             return op1 != op2
         elif func == 'str':
             op = evaluate_ast(ast[1], variables, logs)
-            if not op:
+            if op is None:
                 return 'null'
             return str(op)
         else:
