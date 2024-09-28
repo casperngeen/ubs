@@ -275,7 +275,7 @@ def construct_graph(lines, line_travel_time):
     return graph
 
 
-@app.route('/tourist', methods=['POST'])
+#@app.route('/tourist', methods=['POST'])
 def tourist():
     input = request.get_json()
     logging.info("data sent for evaluation {}".format(input))
@@ -316,3 +316,48 @@ def tourist():
     return_dict = {'path': currBestPath, 'satisfaction': currMaxReward}
     logging.info("My result :{}".format(return_dict))
     return json.dumps(return_dict)
+
+@app.route('/tourist', methods=['POST'])
+def evaluate_tourist():
+    data = request.json
+    
+    locations = data["locations"]
+    starting_point = data["startingPoint"]
+    time_limit = data["timeLimit"]
+
+    def find_optimal_path(start, remaining_time, path, satisfaction):
+        # If time runs out, return the satisfaction of the current path
+        if remaining_time < 0:
+            return satisfaction, path
+
+        # We must always end at the starting point
+        if len(path) > 1 and path[-1] == starting_point:
+            return satisfaction, path
+        
+        # Explore all stations
+        max_satisfaction = satisfaction
+        best_path = path
+        
+        for station, (sat_value, min_time) in locations.items():
+            if station not in path:  # Do not revisit a station
+                new_satisfaction, new_path = find_optimal_path(
+                    station,
+                    remaining_time - min_time,  # Subtract visit time
+                    path + [station],
+                    satisfaction + sat_value
+                )
+                # Track the best path found
+                if new_satisfaction > max_satisfaction:
+                    max_satisfaction = new_satisfaction
+                    best_path = new_path
+        
+        return max_satisfaction, best_path
+    
+    # Start the recursive process from the starting point
+    total_satisfaction, optimal_path = find_optimal_path(starting_point, time_limit, [starting_point], 0)
+
+    # Return the result
+    return json.dumps({
+        'path': optimal_path + [starting_point],  # Ensure round trip
+        'satisfaction': total_satisfaction
+    })
