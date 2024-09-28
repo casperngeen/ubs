@@ -83,7 +83,6 @@ def evaluate_ast(ast, variables, logs):
         func = ast[0]
         if func == 'puts':
             str1 = evaluate_ast(ast[1], variables, logs)
-            print(str1)
             if not isinstance(str1, str):
                 raise Exception()
             logs.append(str1)
