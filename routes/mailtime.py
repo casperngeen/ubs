@@ -53,10 +53,7 @@ TEST_CASE = {
   ]
 }
 
-<<<<<<< HEAD
 @app.route('/mailtime', methods=['POST'])
-=======
->>>>>>> cace4d323a8e02b782bade7339678691e8012974
 def mailtime():
     input = request.get_json()
     logging.info("data sent for evaluation {}".format(input))
