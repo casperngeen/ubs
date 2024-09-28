@@ -18,11 +18,10 @@ def evaluate_clumsy():
         mistypes = test_case["mistypes"]
 
         trie = Trie()
-        for word in dictionary:
-            trie.build_trie(word)
+        trie.build_trie(dictionary)
         trie.display()
         corrections = []
-        for word in mistypes:
+        for word in dictionary:
             corrections.append(trie.find_with_mismatch(word))
 
         results.append({"corrections": corrections})
@@ -59,33 +58,28 @@ class Trie:
 
     def find_with_mismatch(self, word):
 
-        results = []
-
         def dfs(node, index, mismatches, path):
             if mismatches > 1:
-                return  None # Exceeded the allowed mismatches
+                return None  # Exceeded the allowed mismatches
 
             if index == len(word):
                 if node.is_end_of_word and mismatches == 1:
                     return path
-                return
+                return None
 
             char = word[index]
 
-            if char in node.children:
-                # Character matches; proceed without incrementing mismatches
-                return dfs(node.children[char], index + 1, mismatches, path + char)
-                
-            else:
-                # Character does not match and no matching child node
-                for child_char, child_node in node.children.items():
-                    # Only consider mismatch when there is no matching character
+            for child_char, child_node in node.children.items():
+                if child_char == char:
+                    # Character matches; proceed without incrementing mismatches
+                    possible = dfs(child_node, index + 1, mismatches, path + child_char)
+                else:
+                    # Character does not match; proceed with incremented mismatches
                     possible = dfs(child_node, index + 1, mismatches + 1, path + child_char)
-                    if possible != None:
-                        return possible
+                if possible is not None:
+                    return possible
 
-        dfs(self.root, 0, 0, '')
-        return results[0] if results else None
+        return dfs(self.root, 0, 0, '')
 
 
     def display(self, node=None, word=''):
