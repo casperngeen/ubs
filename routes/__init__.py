@@ -12,3 +12,4 @@ import routes.digital_colony
 import routes.dodge_bullet
 import routes.kazuma
 import routes.mailtime
+import routes.lisp_parser
