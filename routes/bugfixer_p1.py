@@ -22,7 +22,6 @@ def evaluate_bugfixer_p1():
         indegree = [0] * n  # In-degree of each node
 
         # Build the graph and in-degree array
-        print(prerequisites)
         for a, b in prerequisites:
             u = a - 1  # Convert to 0-based index
             v = b - 1
