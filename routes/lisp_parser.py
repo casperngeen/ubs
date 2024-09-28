@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 @app.route('/lisp-parser', methods=['POST'])
 def evaluate_parser():
     data = request.get_json()
+    logging.info("data sent for evaluation {}".format(data))
     expressions = data.get('expressions')
     logs = []
     variables = {}
