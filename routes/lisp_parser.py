@@ -78,12 +78,12 @@ def parse_token(token):
         return token  # For symbols or function names
     
 def evaluate_ast(ast, variables, logs):
-    print(ast)
     if isinstance(ast, list):
         # The first item is the function name
         func = ast[0]
         if func == 'puts':
             str1 = evaluate_ast(ast[1], variables, logs)
+            print(str1)
             if not isinstance(str1, str):
                 raise Exception()
             logs.append(str1)
@@ -151,7 +151,7 @@ def evaluate_ast(ast, variables, logs):
             if num2 == 0 or not isinstance(num1, (int, float)) or not isinstance(num2, (int, float)):
                 raise Exception()
             if isinstance(num1, int) and isinstance(num2, int):
-                return num1//num2
+                return round(num1/num2)
             else:
                 return round(num1/num2, 4)
         elif func == 'abs':
