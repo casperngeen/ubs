@@ -18,11 +18,13 @@ def evaluate_clumsy():
         mistypes = test_case["mistypes"]
 
         trie = Trie()
-        trie.build_trie(dictionary)
-        trie.display()
-        corrections = []
+
         for word in dictionary:
-            corrections.append(trie.find_with_mismatch(word))
+            trie.insert(word)
+
+        corrections = []
+        for word in mistypes:
+            corrections.append(trie.search_with_mismatch(word))
 
         results.append({"corrections": corrections})
 
@@ -34,60 +36,82 @@ if __name__ == '__main__':
 
 class TrieNode:
     def __init__(self):
-        self.children = {}          # Dictionary to hold child nodes
+        self.child = [None] * 26         
         self.is_end_of_word = False # Flag to mark the end of a word
+
+class TrieNode:
+    def __init__(self):
+        # Each node holds a dictionary of its children nodes
+        self.children = {}
+        # Flag to indicate if the node represents the end of a word
+        self.is_end_of_word = False
 
 class Trie:
     def __init__(self):
+        """
+        Initialize the Trie with a root node.
+        The root node doesn't hold any character.
+        """
         self.root = TrieNode()
 
     def insert(self, word):
-        node = self.root
+        """
+        Inserts a word into the trie.
+        
+        :param word: The word to be inserted.
+        """
+        current = self.root
         for char in word:
-            # If the character is not already a child of the current node,
-            # add a new TrieNode as a child of the current node
-            if char not in node.children:
-                node.children[char] = TrieNode()
-            node = node.children[char]  # Move to the child node
-        node.is_end_of_word = True  # Mark the end of the word
+            # If the character is not already a child of the current node, add it
+            if char not in current.children:
+                current.children[char] = TrieNode()
+            # Move to the child node
+            current = current.children[char]
+        # After inserting all characters, mark the end of the word
+        current.is_end_of_word = True
 
-    def build_trie(self, words):
-        for word in words:
-            self.insert(word)
+    def search(self, word):
+        """
+        Returns True if the word is in the trie, False otherwise.
+        
+        :param word: The word to search for.
+        :return: Boolean indicating if the word exists in the trie.
+        """
+        current = self.root
+        for char in word:
+            if char not in current.children:
+                return False
+            current = current.children[char]
+        return current.is_end_of_word
+    
+    def search_with_mismatch(self, word, max_mismatch=1):
+        """
+        Searches for words in the trie that match the given word with up to max_mismatch mismatches.
 
+        :param word: The word to search for.
+        :param max_mismatch: The maximum number of allowed mismatched characters.
+        :return: A list of matching words.
+        """
+        results = []
 
-    def find_with_mismatch(self, word):
-
-        def dfs(node, index, mismatches, path):
-            if mismatches > 1:
-                return None  # Exceeded the allowed mismatches
+        def _search(node, index, mismatches, path):
+            if mismatches > max_mismatch:
+                return  # Exceeded the allowed number of mismatches
 
             if index == len(word):
-                if node.is_end_of_word and mismatches == 1:
-                    return path
-                return None
+                if node.is_end_of_word and mismatches <= max_mismatch:
+                    results.append("".join(path))
+                return
 
-            char = word[index]
+            current_char = word[index]
 
-            for child_char, child_node in node.children.items():
-                if child_char == char:
-                    # Character matches; proceed without incrementing mismatches
-                    possible = dfs(child_node, index + 1, mismatches, path + child_char)
+            for char, child_node in node.children.items():
+                path.append(char)
+                if char == current_char:
+                    _search(child_node, index + 1, mismatches, path)
                 else:
-                    # Character does not match; proceed with incremented mismatches
-                    possible = dfs(child_node, index + 1, mismatches + 1, path + child_char)
-                if possible is not None:
-                    return possible
+                    _search(child_node, index + 1, mismatches + 1, path)
+                path.pop()  # Backtrack
 
-        return dfs(self.root, 0, 0, '')
-
-
-    def display(self, node=None, word=''):
-        if node is None:
-            node = self.root
-        if node.is_end_of_word:
-            print(word)
-        for char, child_node in node.children.items():
-            self.display(child_node, word + char)
-
-                
+        _search(self.root, 0, 0, [])
+        return results
