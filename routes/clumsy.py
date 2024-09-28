@@ -13,9 +13,9 @@ def evaluate_clumsy():
     
     results = [{"corrections": []},{"corrections": []},{"corrections": []},{"corrections": []},{"corrections": []},{"corrections": []}]
 
-    for test_case in data:
-        dictionary = test_case["dictionary"]
-        mistypes = test_case["mistypes"]
+    for i in range(6):
+        dictionary = data[i]["dictionary"]
+        mistypes = data[i]["mistypes"]
 
         trie = Trie()
 
@@ -26,7 +26,7 @@ def evaluate_clumsy():
         for word in mistypes:
             corrections.append(trie.search_with_mismatch(word))
 
-        # results.append([{"corrections": corrections}])
+        results[i] = {"corrections": corrections}
 
     return jsonify(results)
 
