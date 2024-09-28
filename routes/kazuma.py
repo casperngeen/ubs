@@ -19,6 +19,8 @@ def evaluate_kazuma():
 
         dict = {}
         dict["efficiency"] = helper(0, 0, dp0, dp1, monsters) 
+        print(dp0)
+        print(dp1)
         results.append(dict)
 
     return jsonify(results)
