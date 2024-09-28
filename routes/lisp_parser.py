@@ -203,7 +203,12 @@ def evaluate_ast(ast, variables, logs):
             op = evaluate_ast(ast[1], variables, logs)
             if op is None:
                 return 'null'
-            return str(op)
+            elif op is True:
+                return 'true'
+            elif op is False:
+                return 'false'
+            else:
+                return str(op)
         else:
             raise NameError(f"Unknown function: {func}")
     else:
