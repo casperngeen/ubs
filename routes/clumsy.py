@@ -11,7 +11,7 @@ def evaluate_clumsy():
     data = request.get_json()
     logging.info("data sent for evaluation {}".format(data))
     
-    results = [[],[],[],[],[],[]]
+    results = [{"corrections": []},{"corrections": []},{"corrections": []},{"corrections": []},{"corrections": []},{"corrections": []}]
 
     for test_case in data:
         dictionary = test_case["dictionary"]
