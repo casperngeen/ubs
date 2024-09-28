@@ -244,8 +244,16 @@ def construct_graph(lines, line_travel_time):
     return graph
 
 
+
 def tourist(input):
     location, starting_point, time_limit = input["locations"], input["startingPoint"], input["timeLimit"]
+#@app.route('/tourist', methods=['POST'])
+def tourist():
+    input = request.get_json()
+    logging.info("data sent for evaluation {}".format(input))
+
+    location, starting_point, time_limit = input.get(
+        "locations"), input.get("startingPoint"), input.get("timeLimit")
     full_graph = construct_graph(LINES, LINE_TRAVEL_TIME)
     complete_subgraph = full_graph.create_complete_subgraph(
         list(location.keys()))
@@ -285,3 +293,6 @@ if __name__ == "__main__":
     # print(f"input: {TEST_INPUT2}")
     print(f"bestPath: {bestPath}")
     print(f"maxReward: {maxReward}")
+    return_dict = {'path': currBestPath, 'satisfaction': currMaxReward}
+    logging.info("My result :{}".format(return_dict))
+    return json.dumps(return_dict)
