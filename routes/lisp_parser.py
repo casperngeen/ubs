@@ -131,7 +131,7 @@ def evaluate_ast(ast, variables, logs):
             return str1[start:stop]
         elif func == 'add':
             evaluated_args = [evaluate_ast(arg, variables, logs) for arg in ast[1:]]
-            if all(isinstance(arg, (int, float)) for arg in evaluated_args):
+            if len(evaluated_args) >= 2 and all(isinstance(arg, (int, float)) for arg in evaluated_args):
                 return round(reduce(operator.add, evaluated_args), 4)
             else:
                 raise Exception()
@@ -143,7 +143,7 @@ def evaluate_ast(ast, variables, logs):
             return num1-num2
         elif func == 'multiply':
             evaluated_args = [evaluate_ast(arg, variables, logs) for arg in ast[1:]]
-            if all(isinstance(arg, (int, float)) for arg in evaluated_args):
+            if len(evaluated_args) >= 2 and all(isinstance(arg, (int, float)) for arg in evaluated_args):
                 return round(reduce(operator.mul, evaluated_args, 1), 4)
             else:
                 raise Exception()
