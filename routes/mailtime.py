@@ -69,7 +69,7 @@ def mailtime():
         RE_occurence = email["subject"].count("RE: ")
         actual_subject = email["subject"].replace("RE: ", "")
         if actual_subject not in ori_send_receiver:
-            ori_send_receiver[actual_subject] = (email["sender"], email["receiver"]) if RE_occurence % 2 == 0 else (email["reciever"], email["sender"])
+            ori_send_receiver[actual_subject] = (email["sender"], email["receiver"]) if RE_occurence % 2 == 0 else (email["receiver"], email["sender"])
         
         if actual_subject not in classified_emails:
             classified_emails[actual_subject] = [datetime.fromisoformat(email["timeSent"])]
