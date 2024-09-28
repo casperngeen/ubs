@@ -130,4 +130,4 @@ def mailtime():
             output[user_name] = 0
 
     logging.info("My result :{}".format(output))
-    return json.dumps(output)
+    return json.dumps({"response": output})
