@@ -11,7 +11,7 @@ from routes import app
 logger = logging.getLogger(__name__)
 
 
-@app.route('/wordle-game', methods=['POST'])
+# @app.route('/wordle-game', methods=['POST'])
 def evaluate_wordle():
     data = request.get_json()
     logging.info("data sent for evaluation {}".format(data))
