@@ -1,17 +1,15 @@
 import logging
-from flask import Flask, request, jsonify
+from flask import request, jsonify
 
-app = Flask(__name__)
+from routes import app
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-app.logger.setLevel(logging.INFO)
+logger = logging.getLogger(__name__)
 
 @app.route('/dodge', methods=['POST'])
 def evaluate_dodge():
     data = request.get_json()
-    app.logger.info("Data received for evaluation: %s", data)
+    logging.info("data sent for evaluation {}".format(data))
     return jsonify([])
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True)   
