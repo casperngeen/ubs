@@ -34,10 +34,6 @@ def evaluate_clumsy():
 if __name__ == '__main__':
     app.run(debug=True)    
 
-class TrieNode:
-    def __init__(self):
-        self.child = [None] * 26         
-        self.is_end_of_word = False # Flag to mark the end of a word
 
 class TrieNode:
     def __init__(self):

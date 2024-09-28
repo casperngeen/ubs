@@ -100,3 +100,11 @@ def compute_count_statement(statement, value):
     result = eval(statement)
     
     return result
+
+class Petri_dish:
+    def __init__(self, start, conditions):
+            # Order which it is being passed to labs
+            self.order = []
+
+            
+            

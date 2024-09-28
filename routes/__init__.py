@@ -13,3 +13,4 @@ import routes.dodge_bullet
 import routes.kazuma
 import routes.mailtime
 import routes.clumsy
+import routes.lisp_parser
