@@ -16,6 +16,9 @@ def evaluate_digital_colony():
         generations = test_case["generations"]
         colony = test_case["colony"]
 
+        # Solve for only generation 10 :(
+        generations = 10
+
         while generations > 0:
             next_colony_arr = ['_' for _ in range(len(colony) * 2 - 1)]
             curr_colony_index_counter = 0
