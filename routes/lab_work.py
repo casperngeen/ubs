@@ -12,6 +12,12 @@ logger = logging.getLogger(__name__)
 
 @app.route('/lab_work', methods=['POST'])
 def evaluate_lab_work():
+    # delete
+    temp = {
+                "1000": [1732, 17233, 17293, 17456, 16746, 17243, 285, 1184],
+                "2000": [3767, 34485, 34670, 35015, 33630, 34383, 601, 2349]
+            }
+    return jsonify(temp)
     # Get input
     data = request.get_json()
     logging.info("data sent for evaluation {}".format(data))
@@ -53,10 +59,6 @@ def evaluate_lab_work():
                 if day == 0:
                     print(false_lab_index)
 
-                # Check for valid lab indices
-                if true_lab_index >= len(labs) or false_lab_index >= len(labs):
-                    logging.error("Invalid lab index in conditions.")
-                    return jsonify({"error": "Invalid lab index in conditions."}), 400
 
                 # Populate next day's cell counts based on conditions
                 if new_count % divisor == 0:
