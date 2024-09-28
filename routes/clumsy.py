@@ -114,4 +114,7 @@ class Trie:
                 path.pop()  # Backtrack
 
         _search(self.root, 0, 0, [])
-        return results
+        if len(results) > 0:
+            return results[0]
+        else:
+            return None
