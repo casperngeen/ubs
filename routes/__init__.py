@@ -15,3 +15,4 @@ import routes.mailtime
 import routes.clumsy
 import routes.decode
 import routes.lisp_parser
+import routes.lab_work
