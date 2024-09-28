@@ -62,7 +62,12 @@ def parse_tokens(tokens):
 
 def parse_token(token):
     # Handle literals and symbols
-    if token.replace('.', '', 1).isdigit():  # Check for both integers and floats
+    if token.startswith('-') and token[1:].replace('.', '', 1).isdigit():
+        if '.' in token:
+            return float(token)  # Convert to float if it has a decimal point
+        else:
+            return int(token)
+    elif token.replace('.', '', 1).isdigit():  # Check for both integers and floats
         return float(token) if '.' in token else int(token)
     elif token.startswith('"') and token.endswith('"'):
         return token[1:-1]  # Strip quotes from strings
@@ -74,6 +79,7 @@ def parse_token(token):
         return token  # For symbols or function names
     
 def evaluate_ast(ast, variables, logs):
+    print(ast)
     if isinstance(ast, list):
         # The first item is the function name
         func = ast[0]
