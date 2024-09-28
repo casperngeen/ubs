@@ -26,7 +26,7 @@ def evaluate_clumsy():
         for word in mistypes:
             corrections.append(trie.search_with_mismatch(word))
 
-        results.append({"corrections": corrections})
+        results.append([{"corrections": corrections}])
 
     return jsonify(results)
 

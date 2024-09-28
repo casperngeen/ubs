@@ -90,7 +90,7 @@ def mailtime():
     
     return_dict = {}
     for user, time_data in users_time_count.items():
-        return_dict[user] = int(time_data[0].total_seconds() / time_data[1])
+        return_dict[user] = 0 if time_data[1] == 0 else int(time_data[0].total_seconds() / time_data[1])
 
     logging.info("My result :{}".format(return_dict))
     return json.dumps({"response": return_dict})
