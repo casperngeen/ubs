@@ -14,22 +14,18 @@ logger = logging.getLogger(__name__)
 
 
 base_dir = os.path.abspath(os.path.dirname(__file__))
-csv_path = os.path.join(base_dir, 'valid_words.csv')
+txt_path = os.path.join(base_dir, 'valid_words.txt')
 
 # Load the word list
 def load_words():
     words = []
-    with open(csv_path, 'r', newline='', encoding='utf-8') as csvfile:
-            reader = csv.reader(csvfile)
-            for row_number, row in enumerate(reader, start=1):
-                if len(row) != 5:
-                    logger.warning(f"Row {row_number} skipped: Expected 5 columns, got {len(row)}.")
-                    continue  # Skip rows that don't have exactly 5 columns
-                word = ''.join(letter.strip().lower() for letter in row)
-                if len(word) == 5 and word.isalpha():
-                    words.append(word)
-                else:
-                    logger.warning(f"Row {row_number} skipped: Invalid word '{word}'.")
+    with open(txt_path, 'r', encoding='utf-8') as txtfile:
+        for row_number, line in enumerate(txtfile, start=1):
+            word = line.strip().lower()  # Strip whitespace and convert to lowercase
+            if len(word) == 5 and word.isalpha():
+                words.append(word)
+            else:
+                logger.warning(f"Row {row_number} skipped: Invalid word '{word}'.")
     return words
 
 
@@ -51,32 +47,31 @@ def select_next_guess(possible_words):
     return best_word
 
 
-def select_next_guess(possible_words):
-    if not possible_words:
-        return "crane"
+# def select_next_guess(possible_words):
+#     if not possible_words:
+#         return "crane"
     
-    letter_frequency = defaultdict(int)
-    for word in possible_words:
-        for letter in set(word):
-            letter_frequency[letter] += 1
+#     letter_frequency = defaultdict(int)
+#     for word in possible_words:
+#         for letter in set(word):
+#             letter_frequency[letter] += 1
     
-    scored_words = [
-        (word, sum(letter_frequency[letter] for letter in set(word)))
-        for word in possible_words
-    ]
+#     scored_words = [
+#         (word, sum(letter_frequency[letter] for letter in set(word)))
+#         for word in possible_words
+#     ]
     
-    best_word = max(scored_words, key=lambda x: x[1])[0]
-    return best_word
+#     best_word = max(scored_words, key=lambda x: x[1])[0]
+#     return best_word
 
 def filter_by_X(possible_words, char, index):
-    return list(filter(lambda s: s[index] != char, possible_words))
+    return [word for word in possible_words if word[index] != char]
 
 def filter_by_dash(possible_words, char):
-    return list(filter(lambda s: char in s.lower(), possible_words))
+    return [word for word in possible_words if char not in word.lower()]
 
 def filter_by_O(possible_words, char, index):
-    return list(filter(lambda s: s[index] == char, possible_words))
-
+    return [word for word in possible_words if word[index] == char]
 
 @app.route('/wordle-game', methods=['POST'])
 def evaluate_wordle2():
@@ -99,6 +94,6 @@ def evaluate_wordle2():
                 possible_words = filter_by_dash(possible_words, guessHistory[i][j])
             elif evaluationHistory[i][j] == 'O':
                 possible_words = filter_by_O(possible_words, guessHistory[i][j], j)
-    
+
     guess = select_next_guess(possible_words)
     return json.dumps({"guess": guess})
