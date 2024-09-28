@@ -1,12 +1,6 @@
 import heapq
 from collections import deque
 from itertools import combinations
-import json
-import logging
-from flask import request
-from routes import app
-
-logger = logging.getLogger(__name__)
 
 LINES = {
     "Tokyo Metro Ginza Line": [
@@ -140,7 +134,6 @@ class Node:
         # Avoid adding duplicate edges with the same weight
         if not any(edge[0].value == node.value and edge[1] == weight for edge in self.edges):
             self.edges.append((node, weight))  # Store edge with weight
-
     def __repr__(self):
         return f'Node({self.value})'
 
@@ -148,6 +141,9 @@ class Node:
 class Graph:
     def __init__(self):
         self.nodes = {}
+
+    def get_node(self, value):
+        return self.nodes[value]
 
     def add_node(self, value):
         if value not in self.nodes:
@@ -163,7 +159,7 @@ class Graph:
             # Add edge from to_value to from_value (making it bidirectional)
             self.nodes[to_value].add_edge(self.nodes[from_value], weight)
         else:
-            print(f'One or both nodes not found: {from_value}, {to_value}')
+           print(f'One or both nodes not found: {from_value}, {to_value}')
 
     def display(self):
         for node in self.nodes.values():
@@ -171,43 +167,21 @@ class Graph:
                      for edge in node.edges]  # Extract node value and weight
             print(f'{node.value} -> {edges}')
 
-    def shortest_path(self, start_value, end_value):
-        if start_value not in self.nodes or end_value not in self.nodes:
-            return f'One or both nodes not found: {start_value}, {end_value}'
-
+    def dijkstra(self, start: Node):
         # Priority queue for Dijkstra's algorithm
         priority_queue = []
-        heapq.heappush(priority_queue, (0, start_value))  # (distance, node)
+        heapq.heappush(priority_queue, (0, start.value))  # (weight, start)
         distances = {node: float('inf')
                      for node in self.nodes}  # Initialize distances
-        distances[start_value] = 0
-        # To reconstruct the path
-        previous_nodes = {node: None for node in self.nodes}
+        distances[start] = 0
 
         while priority_queue:
-            current_distance, current_node_value = heapq.heappop(
-                priority_queue)
+            current_distance, current_node_value = heapq.heappop(priority_queue)
+            if current_node_value in subgraph.nodes:
+                visited.add(current_node_value)
+                if len(visited) == len(subgraph.nodes):
+                    break
             current_node = self.nodes[current_node_value]
-
-            # If we reached the end node, construct the path
-            if current_node_value == end_value:
-                path = []
-                while current_node_value is not None:
-                    path.append(current_node_value)
-                    current_node_value = previous_nodes[current_node_value]
-                path = path[::-1]  # Reverse the path
-
-                # Compute the total distance
-                total_distance = 0
-                for i in range(len(path) - 1):
-                    from_node = self.nodes[path[i]]
-                    to_node = self.nodes[path[i + 1]]
-                    # Find the edge weight from from_node to to_node
-                    for neighbor, weight in from_node.edges:
-                        if neighbor.value == to_node.value:
-                            total_distance += weight
-                            break
-                return (path, total_distance)  # Return both path and distance
 
             # Explore neighbors
             for neighbor, weight in current_node.edges:
@@ -218,8 +192,7 @@ class Graph:
                     distances[neighbor.value] = distance
                     previous_nodes[neighbor.value] = current_node_value
                     heapq.heappush(priority_queue, (distance, neighbor.value))
-
-        return f'No path found from {start_value} to {end_value}'
+        return distances
 
     def create_complete_subgraph(self, node_values):
         """
@@ -238,20 +211,16 @@ class Graph:
         subgraph = Graph()
         for value in node_values:
             subgraph.add_node(value)
+        print(f"{subgraph.nodes}")
 
         # Generate all unique pairs of nodes
-        for node1, node2 in combinations(node_values, 2):
-            result = self.shortest_path(node1, node2)
-
-            if isinstance(result, tuple):
-                path, distance = result
-                # Add edge with the shortest distance
-                subgraph.add_edge(node1, node2, distance)
-            else:
-                print(f'No path between {node1} and {node2}, skipping.')
-
+        for node in node_values:
+            result = self.dijkstra(self.get_node(node))
+            # Add edge with the shortest distance
+            for neighbour in result:
+                if (neighbour, result[neighbour]) not in subgraph.get_node(node).edges:
+                    subgraph.add_edge(node, neighbour, result[neighbour])
         return subgraph
-
 
 def construct_graph(lines, line_travel_time):
     graph = Graph()
@@ -297,7 +266,9 @@ def tourist():
     currMaxReward = -1
 
     while queue:
-        currNode, currPath, currCost, currReward, visitedNodes = queue.popleft()
+        value = queue.popleft()
+        print(value)
+        currNode, currPath, currCost, currReward, visitedNodes = value
         if currCost > time_limit:
             continue
         if currNode.value == starting_point:
@@ -313,6 +284,14 @@ def tourist():
                               currReward + location[nextNode.value][0],
                               visitedNodes.union({nextNode.value})))
 
+    return currBestPath, currMaxReward
+
+
+if __name__ == "__main__":
+    bestPath, maxReward = tourist(TEST_INPUT_2)
+    # print(f"input: {TEST_INPUT2}")
+    print(f"bestPath: {bestPath}")
+    print(f"maxReward: {maxReward}")
     return_dict = {'path': currBestPath, 'satisfaction': currMaxReward}
     logging.info("My result :{}".format(return_dict))
     return json.dumps(return_dict)
