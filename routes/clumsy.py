@@ -11,7 +11,7 @@ def evaluate_clumsy():
     data = request.get_json()
     logging.info("data sent for evaluation {}".format(data))
     
-    results = []
+    results = [[],[],[],[],[],[]]
 
     for test_case in data:
         dictionary = test_case["dictionary"]
@@ -26,7 +26,7 @@ def evaluate_clumsy():
         for word in mistypes:
             corrections.append(trie.search_with_mismatch(word))
 
-        results.append([{"corrections": corrections}])
+        # results.append([{"corrections": corrections}])
 
     return jsonify(results)
 
