@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 def evaluate_dodge():
     data = request.get_json()
     logging.info("data sent for evaluation {}".format(data))
+    print(data)
 
     return jsonify([])
 
