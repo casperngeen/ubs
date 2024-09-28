@@ -298,7 +298,7 @@ def tourist():
                               currReward + location[nextNode.value][0],
                               visitedNodes.union({nextNode.value})))
 
-    return currBestPath, currMaxReward
+    return json.dumps({'path': currBestPath, 'satisfaction': currMaxReward})
 
 #@app.route('/tourist', methods=['POST'])
 def evaluate_tourist():
