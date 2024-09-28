@@ -79,7 +79,6 @@ def parse_token(token):
         return token  # For symbols or function names
     
 def evaluate_ast(ast, variables, logs):
-    print(ast)
     if isinstance(ast, list):
         # The first item is the function name
         func = ast[0]
