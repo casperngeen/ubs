@@ -6,12 +6,17 @@ from flask import request, jsonify
 from flask import request
 
 from routes import app
+import sys
+
+# Disable the limit on integer string conversion digits
+sys.set_int_max_str_digits(0)
 
 logger = logging.getLogger(__name__)
 
 
 @app.route('/lab_work', methods=['POST'])
 def evaluate_lab_work():
+    
     # Get input
     data = request.get_json()
     logging.info("data sent for evaluation {}".format(data))
@@ -41,62 +46,98 @@ def evaluate_lab_work():
             # Store result
             result[i] += (len(cell_counts[i]))
             for j in range(len(cell_counts[i])):
-                current_count = cell_counts[i][j]
+                cell_counts[i][j] = compute_count_statement(increments[i], cell_counts[i][j])
 
-                # Increment cell_count
-                new_count = compute_count_statement(increments[i], current_count)
-                print(len(labs))
                 # Get conditions
                 divisor = conditions[i][0]
                 true_lab_index = conditions[i][1]
                 false_lab_index = conditions[i][2] 
-                if day == 0:
-                    print(false_lab_index)
-
-                # Check for valid lab indices
-                if true_lab_index >= len(labs) or false_lab_index >= len(labs):
-                    logging.error("Invalid lab index in conditions.")
-                    return jsonify({"error": "Invalid lab index in conditions."}), 400
 
                 # Populate next day's cell counts based on conditions
-                if new_count % divisor == 0:
-                    cell_counts[true_lab_index].append(new_count)
+                if cell_counts[i][j] % divisor == 0:
+                    cell_counts[true_lab_index].append(cell_counts[i][j])
                 else:
-                    cell_counts[false_lab_index].append(new_count)
+                    cell_counts[false_lab_index].append(cell_counts[i][j])
+                
+            cell_counts[i] = []
 
         # Prepare the result for this test case
         result_dict = {"1000": result}
-        print(result)
-        logging.info("Result for test case: {}".format(result_dict))
+    
 
     # Return all results as a JSON response
-    return jsonify(result)
+    return jsonify(result_dict)
 
 def parse_data(raw_data):
+    # Use regex to capture each row of the table
+    pattern = r'\|(\d+)\s+\|\s+([\d\s]+)\s+\|\s+([^\|]+)\s+\|\s+([\d\s]+)\s+\|'
+    matches = re.findall(pattern, raw_data)
+    
+    # Prepare lists for each column
     labs = []
-    cell_counts = []
+    current_counts = []
     increments = []
     conditions = []
-
-    # Use regex to parse each row
-    pattern = r"\|(\d+)\s*\|\s*([\d\s]+)\s*\|\s*(count [\*\+\d\s]+)\s*\|\s*([\d\s]+)\s*\|"
-    matches = re.findall(pattern, raw_data)
-
-    # Extract parsed data into lists
+    
+    # Process each match and populate the lists
     for match in matches:
-        labs.append(int(match[0]))  # Lab number
-        cell_counts.append([int(x) for x in match[1].split()])  # Cell counts as an array of integers
-        increments.append(match[2].strip())  # Increment (as a string)
-        conditions.append([int(x) for x in match[3].split()])  # Condition as an array of integers
-
-    return labs, cell_counts, increments, conditions
+        lab, counts, increment, condition = match
+        labs.append(int(lab.strip()))
+        current_counts.append(list(map(int, counts.split())))
+        increments.append(increment.strip())
+        conditions.append(list(map(int, condition.split())))
+    
+    return labs, current_counts, increments, conditions
 
 def compute_count_statement(statement, value):
     
-    # Replace 'count' with the provided value in the statement
-    statement = statement.replace("count", str(value))
+    # # Replace 'count' with the provided value in the statement
+    # statement = statement.replace("count", str(value))
     
-    # Use eval to compute the result of the mathematical expression
-    result = eval(statement)
+    # # Use eval to compute the result of the mathematical expression
+    # result = eval(statement)
+
+    # return result
+
+    # Remove any spaces for easier processing
+    statement = statement.replace(" ", "")
     
+    if '*' in statement:
+        if 'count*count' in statement:
+            return bitwise_multiply(value, value)  # Special case for 'count * count'
+        else:
+            factor = int(statement.split('*')[1])
+            return bitwise_multiply(value, factor)
+    
+    elif '+' in statement:
+        if 'count+count' in statement:
+            return bitwise_add(value, value)  # Special case for 'count + count'
+        else:
+            addend = int(statement.split('+')[1])
+            return bitwise_add(value, addend)
+    
+    else:
+        raise ValueError(f"Unsupported increment statement: {statement}")
+    
+def bitwise_multiply(a, b):
+    result = 0
+    while b > 0:
+        if b & 1:  # If the least significant bit of b is 1
+            result = bitwise_add(result, a)
+        a <<= 1  # Left shift a by 1 (multiply by 2)
+        b >>= 1  # Right shift b by 1 (divide by 2)
     return result
+
+def bitwise_add(a, b):
+    while b != 0:
+        carry = a & b
+        a = a ^ b
+        b = carry << 1
+    return a
+
+def bitwise_modulo(a, b):
+    # Works if b is a power of 2, i.e., b = 2^n
+    return a & (b - 1)
+
+            
+            
