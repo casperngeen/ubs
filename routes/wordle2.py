@@ -33,16 +33,33 @@ def load_words():
     return words
 
 
+# def select_next_guess(possible_words):
+#     if not possible_words:
+#         # Fallback to a common word if no possibilities are left
+#         return "crane"
+#     # Advanced strategy: frequency analysis
+#     letter_frequency = defaultdict(int)
+#     for word in possible_words:
+#         for letter in set(word):
+#             letter_frequency[letter] += 1
+#     best_word = max(possible_words, key=lambda w: sum(letter_frequency[c] for c in set(w)))
+#     return best_word
+
 def select_next_guess(possible_words):
     if not possible_words:
-        # Fallback to a common word if no possibilities are left
         return "crane"
-    # Advanced strategy: frequency analysis
+    
     letter_frequency = defaultdict(int)
     for word in possible_words:
         for letter in set(word):
             letter_frequency[letter] += 1
-    best_word = max(possible_words, key=lambda w: sum(letter_frequency[c] for c in set(w)))
+    
+    scored_words = [
+        (word, sum(letter_frequency[letter] for letter in set(word)))
+        for word in possible_words
+    ]
+    
+    best_word = max(scored_words, key=lambda x: x[1])[0]
     return best_word
 
 def filter_by_dash(possible_words, char, index):
