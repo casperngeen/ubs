@@ -1,5 +1,6 @@
 import json
 import logging
+import math
 import re
 import operator
 from functools import reduce
@@ -94,13 +95,14 @@ def evaluate_ast(ast, variables, logs):
                 raise Exception()
             value = evaluate_ast(ast[2], variables, logs)
             variables[name] = value
+            print(variables)
             return None
         elif func == 'concat':
             str1 = evaluate_ast(ast[1], variables, logs)
             str2 = evaluate_ast(ast[2], variables, logs)
             if not isinstance(str1, str) or not isinstance(str2, str):
                 raise Exception()
-            return str1+str2
+            return "".join([str1, str2])
         elif func == 'lowercase':
             str1 = evaluate_ast(ast[1], variables, logs)
             if not isinstance(str1, str):
@@ -151,7 +153,7 @@ def evaluate_ast(ast, variables, logs):
             if num2 == 0 or not isinstance(num1, (int, float)) or not isinstance(num2, (int, float)):
                 raise Exception()
             if isinstance(num1, int) and isinstance(num2, int):
-                return round(num1/num2)
+                return math.trunc(num1/num2)
             else:
                 return round(num1/num2, 4)
         elif func == 'abs':
