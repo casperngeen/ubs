@@ -300,16 +300,6 @@ def tourist():
 
     return currBestPath, currMaxReward
 
-
-if __name__ == "__main__":
-    bestPath, maxReward = tourist(TEST_INPUT_2)
-    # print(f"input: {TEST_INPUT2}")
-    print(f"bestPath: {bestPath}")
-    print(f"maxReward: {maxReward}")
-    return_dict = {'path': currBestPath, 'satisfaction': currMaxReward}
-    logging.info("My result :{}".format(return_dict))
-    return json.dumps(return_dict)
-
 #@app.route('/tourist', methods=['POST'])
 def evaluate_tourist():
     input_data = request.get_json()
