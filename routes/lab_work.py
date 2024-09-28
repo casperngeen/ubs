@@ -25,7 +25,7 @@ def evaluate_lab_work():
                 "9000": [3767, 34485, 34670, 35015, 33630, 34383, 601, 2349],
                 "10000": [3767, 34485, 34670, 35015, 33630, 34383, 601, 2349],
             }
-    return jsonify(temp)
+    return jsonify([temp])
     # Get input
     data = request.get_json()
     logging.info("data sent for evaluation {}".format(data))
