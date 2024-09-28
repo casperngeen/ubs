@@ -13,6 +13,8 @@ logger = logging.getLogger(__name__)
 @app.route('/lab_work', methods=['POST'])
 def evaluate_lab_work():
     # delete
+    data = request.get_json()
+    logging.info("data sent for evaluation {}".format(data))
     temp = {
                 "1000": [1732, 17233, 17293, 17456, 16746, 17243, 285, 1184],
                 "2000": [3767, 34485, 34670, 35015, 33630, 34383, 601, 2349],
