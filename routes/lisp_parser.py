@@ -162,7 +162,7 @@ def evaluate_ast(ast, variables, logs):
                 raise Exception()
             return abs(num)
         elif func == 'max':
-            if len(ast) == 1:
+            if len(ast) < 3:
                 raise Exception()
             evaluated_args = [evaluate_ast(arg, variables, logs) for arg in ast[1:]]
             if all(isinstance(arg, (int, float)) for arg in evaluated_args):
@@ -170,7 +170,7 @@ def evaluate_ast(ast, variables, logs):
             else:
                raise Exception()
         elif func == 'min':
-            if len(ast) == 1:
+            if len(ast) < 3:
                 raise Exception()
             evaluated_args = [evaluate_ast(arg, variables, logs) for arg in ast[1:]]
             if all(isinstance(arg, (int, float)) for arg in evaluated_args):
