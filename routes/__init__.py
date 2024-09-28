@@ -3,4 +3,5 @@ from flask import Flask
 app = Flask(__name__)
 import routes.square
 import routes.wordle
-import routes.lab_workimport routes.klotski
+import routes.lab_work
+import routes.klotski
