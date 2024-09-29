@@ -153,7 +153,7 @@ def evaluate_ast(ast, variables, logs):
             if num2 == 0 or not isinstance(num1, (int, float)) or not isinstance(num2, (int, float)):
                 raise Exception()
             if isinstance(num1, int) and isinstance(num2, int):
-                return math.floor(num1/num2)
+                return math.trunc(num1/num2)
             else:
                 return round(num1/num2, 4)
         elif func == 'abs':
