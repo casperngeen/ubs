@@ -140,7 +140,7 @@ def evaluate_ast(ast, variables, logs):
             num2 = evaluate_ast(ast[2], variables, logs)
             if not isinstance(num1, (int, float)) or not isinstance(num2, (int, float)):
                 raise Exception()
-            return num1-num2
+            return round(num1-num2,4)
         elif func == 'multiply':
             evaluated_args = [evaluate_ast(arg, variables, logs) for arg in ast[1:]]
             if len(evaluated_args) >= 2 and all(isinstance(arg, (int, float)) for arg in evaluated_args):
