@@ -126,7 +126,7 @@ def evaluate_ast(ast, variables, logs):
             stop = evaluate_ast(ast[3], variables, logs)
             if not isinstance(str1, str) or not isinstance(start, int) or not isinstance(stop, int):
                 raise Exception()
-            if 0 > start or start >= len(str1) or 0 > stop or stop >= len(str1) or stop < start:
+            if 0 > start or start >= len(str1) or 0 > stop or stop > len(str1) or stop < start:
                 raise Exception()
             return str1[start:stop]
         elif func == 'add':
