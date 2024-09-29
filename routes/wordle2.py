@@ -44,6 +44,7 @@ def select_next_guess(possible_words):
     ]
     
     best_word = max(scored_words, key=lambda x: x[1])[0]
+    best_word = random.choice(possible_words) # test
     return best_word
 
 

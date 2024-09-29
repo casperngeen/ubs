@@ -14,8 +14,8 @@ sys.set_int_max_str_digits(0)
 logger = logging.getLogger(__name__)
 
 
-# @app.route('/lab_work', methods=['POST'])
-def evaluate_lab_work():
+@app.route('/lab_work', methods=['POST'])
+def evaluate_lab_work2():
     
     # Get input
     data = request.get_json()
@@ -104,40 +104,25 @@ def compute_count_statement(statement, value):
     
     if '*' in statement:
         if 'count*count' in statement:
-            return bitwise_multiply(value, value)  # Special case for 'count * count'
+            return value * value  # Special case for 'count * count'
         else:
             factor = int(statement.split('*')[1])
-            return bitwise_multiply(value, factor)
+            return value * factor
     
     elif '+' in statement:
         if 'count+count' in statement:
-            return bitwise_add(value, value)  # Special case for 'count + count'
+            return value + value  # Special case for 'count + count'
         else:
             addend = int(statement.split('+')[1])
-            return bitwise_add(value, addend)
+            return value + addend
     
     else:
         raise ValueError(f"Unsupported increment statement: {statement}")
     
-def bitwise_multiply(a, b):
-    result = 0
-    while b > 0:
-        if b & 1:  # If the least significant bit of b is 1
-            result = bitwise_add(result, a)
-        a <<= 1  # Left shift a by 1 (multiply by 2)
-        b >>= 1  # Right shift b by 1 (divide by 2)
-    return result
 
-def bitwise_add(a, b):
-    while b != 0:
-        carry = a & b
-        a = a ^ b
-        b = carry << 1
-    return a
+        
 
-def bitwise_modulo(a, b):
-    # Works if b is a power of 2, i.e., b = 2^n
-    return a & (b - 1)
+
 
             
             
