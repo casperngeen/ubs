@@ -1,3 +1,3 @@
-# ubs
+# UBS Coding Challenge 2024
 
-For ubs coding challenge 2024
+By: Casper, Zi Xin, Yizhong
